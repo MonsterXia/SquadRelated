@@ -1,5 +1,5 @@
 # SquadRelated
-Code that is relatied to Squad Game
+Code that is related to Squad Game
 
 If you are searching for tools to make layers in rotation randomly, dowanload randomRank and open it in Your IDE.
 
