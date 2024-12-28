@@ -34,6 +34,10 @@ class BGLayer:
         self.layer_name = layer_name
         self.team1 = []
         self.team2 = []
+        self.blue_force = set()
+        self.independent = set()
+        self.red_force = set()
+        self.PAC = set()
 
 # returns layers = [Layer, Layer, ...]
 def read_all_layers():
@@ -134,7 +138,6 @@ def read_all_BG_layers(layers):
             for layer in layers:
                 BGlayers.append(BGLayer(layer_name = layer.layer_name))
 
-            print(len(BGlayers))
             file_path = os.path.join(current_directory, file)
             df = pd.read_csv(file_path)
 
@@ -183,6 +186,20 @@ def read_all_BG_layers(layers):
 
                     for index in range(0,len(BGlayers)):
                         if BGlayers[index].layer_name == layer_name:
+                            # BlueForce Independent PAC RedForce
+                            # BlueForce:    ADF BAF CAF USA USMC
+                            # Independent:  IMF	MEI	MEA	TLF	WPMC
+                            # PAC:          PLA	PLAAGF	PLANMC
+                            # RedForce:     RGF	VDV
+                            if faction == "ADF" or faction == "BAF" or faction == "CAF" or faction == "USA" or faction == "USMC":
+                                BGlayers[index].blue_force.add(faction)
+                            elif faction == "IMF" or faction == "INS" or faction == "MEA" or faction == "TLF" or faction == "WPMC":
+                                BGlayers[index].independent.add(faction)
+                            elif faction == "PLA" or faction == "PLAAGF" or faction == "PLANMC":
+                                BGlayers[index].PAC.add(faction)
+                            else:
+                                BGlayers[index].red_force.add(faction)
+
                             temp = f"{faction}+{battle_group_type}"
                             if usable_team == "Team1":
                                 BGlayers[index].team1.append(temp)
@@ -368,7 +385,6 @@ def layer_size_not_large_overflow(stack, stack_capacity, target):
         return False
 
 def candidate_level_check(level_stack, mode_stack, lighting_stack, size_stack, candidate):
-
     if is_repeat(level_stack, candidate.level):
         return False, None, None, None, None
     else:
@@ -391,8 +407,118 @@ def candidate_level_check(level_stack, mode_stack, lighting_stack, size_stack, c
 
     return True, return_level_stack, return_mode_stack, return_lighting_stack, return_size_stack
 
+def get_factions(BG_layer):
+    # B-I B-P B-R I-P I-R P-R I-I
+    random_number_alliance = random.randint(1, 7)
+    if random_number_alliance == 1:
+        # B-I blue_force = set()
+        #         self.independent = set()
+        #         self.red_force = set()
+        #         self.PAC
+        if len(BG_layer.blue_force) != 0 and len(BG_layer.independent) != 0:
+            faction1_list = list(BG_layer.blue_force)
+            faction2_list = list(BG_layer.independent)
+        else:
+            return False, None, None
+    elif random_number_alliance == 2:
+        # B-P
+        if len(BG_layer.blue_force) != 0 and len(BG_layer.PAC) != 0:
+            faction1_list = list(BG_layer.blue_force)
+            faction2_list = list(BG_layer.PAC)
+        else:
+            return False, None, None
+    elif random_number_alliance == 3:
+        # B-R
+        if len(BG_layer.blue_force) != 0 and len(BG_layer.red_force) != 0:
+            faction1_list = list(BG_layer.blue_force)
+            faction2_list = list(BG_layer.red_force)
+        else:
+            return False, None, None
+    elif random_number_alliance == 4:
+        # I-P
+        if len(BG_layer.independent) != 0 and len(BG_layer.PAC) != 0:
+            faction1_list = list(BG_layer.independent)
+            faction2_list = list(BG_layer.PAC)
+        else:
+            return False, None, None
+    elif random_number_alliance == 5:
+        # I-R
+        if len(BG_layer.independent) != 0 and len(BG_layer.red_force) != 0:
+            faction1_list = list(BG_layer.independent)
+            faction2_list = list(BG_layer.red_force)
+        else:
+            return False, None, None
+    elif random_number_alliance == 6:
+        # P-R
+        if len(BG_layer.PAC) != 0 and len(BG_layer.red_force) != 0:
+            faction1_list = list(BG_layer.PAC)
+            faction2_list = list(BG_layer.red_force)
+        else:
+            return False, None, None
+    else:
+        # I-I
+        if len(BG_layer.independent) >= 2:
+            random_elements = random.sample(list(BG_layer.independent), 2)
+            return True, random_elements[0], random_elements[1]
+        else:
+            return False, None, None
+
+    return True, random.sample(faction1_list, 1)[0], random.sample(faction2_list, 1)[0]
+
+def get_battle_group(faction1, faction2, BG_layer):
+    # faction1 vs faction2
+    battle_group_type1 = []
+    battle_group_type2 = []
+    for item in BG_layer.team1:
+        if item.startswith(faction1):
+            battle_group_type1.append(item.split("+")[1])
+    for item in BG_layer.team2:
+        if item.startswith(faction2):
+            battle_group_type2.append(item.split("+")[1])
+
+    random_number_level_battle_group_equal = random.randint(1, 5)
+    if random_number_level_battle_group_equal <= 4:
+        intersection = set(battle_group_type1).intersection(set(battle_group_type2))
+        if len(intersection) != 0:
+            select = random.sample(list(intersection), 1)[0]
+            battle_group = f"{faction1}+{select} {faction2}+{select}"
+            return True, True, battle_group
+        else:
+            return False, False, None
+    else:
+        if len(battle_group_type1) > 0 and len(battle_group_type2) > 0:
+            battle_group = f"{faction1}+{random.sample(battle_group_type1, 1)[0]} {faction2}+{random.sample(battle_group_type2, 1)[0]}"
+            return True, False, battle_group
+        else:
+            return False, False, None
+
+def battle_group_not_balance_overflow(stack, stack_capacity, target):
+    stack.append(target)
+    count = 0
+    if len(stack) <= stack_capacity:
+        temp = stack
+    else:
+        temp = stack[-stack_capacity:]
+
+    for item in temp:
+        if item != True:
+            count += 1
+
+    if count > 1:
+        return True
+    else:
+        return False
+
+def balance_check(balance_stack, target):
+    if battle_group_not_balance_overflow(balance_stack, 5, target):
+        return False, None
+    else:
+        balance_stack = update_stack(balance_stack, 5, target)
+        return True, balance_stack
+
+
 def main():
-    TOTAL_NUMBER = 300
+    TOTAL_NUMBER = 3000
 
     # get layers from Map Layers.csv
     layers = read_all_layers()
@@ -409,10 +535,10 @@ def main():
     lighting_stack = []
     size_stack = []
 
-    balance_stake = []
+    balance_stack = []
 
-    # while len(output_layers) < TOTAL_NUMBER:
-    for i in range(TOTAL_NUMBER):
+    while len(output_layers) < TOTAL_NUMBER:
+    # for i in range(TOTAL_NUMBER):
         flag, candidate = get_candidate_layers(levels)
         if flag:
             if len(output_layers) == 0:
@@ -432,46 +558,40 @@ def main():
                 else:
                     continue
 
-            # Factions:
+            # Battle Group:
             # BlueForce Independent PAC RedForce
             # BlueForce:    ADF BAF CAF USA USMC
-            # Independent:  IMF	MEI	MEA	TLF	WPMC
+            # Independent:  IMF	INS	MEA	TLF	WPMC
             # PAC:          PLA	PLAAGF	PLANMC
             # RedForce:     RGF	VDV
 
-
             for BG_layer in BGLayers:
                 if BG_layer.layer_name == candidate.layer_name:
-                    # TODO:
-
-                    potential_team1 = []
-                    potential_team2 = []
-                    # B-I B-P B-R I-P I-R P-R I-I
-                    random_number_alliance = random.randint(1, 7)
-                    if random_number_alliance == 1:
-                        print(1)
-
-
-
-
-
-
-
-
-            print(candidate.layer_name)
+                    print(BG_layer.layer_name, len(output_layers))
+                    # # TODO: Insurgency?
+                    # MAX_TRY = 200
+                    # count = 0
+                    # while count < MAX_TRY:
+                    #     count += 1
+                    #     success_get_faction, faction1, faction2 = get_factions(BG_layer)
+                    #
+                    #     if success_get_faction:
+                    #         random_number_level_faction_side = random.randint(0, 1)
+                    #         if random_number_level_faction_side == 0:
+                    #             success_get_battle_group, balance, battle_group = get_battle_group(faction1, faction2,
+                    #                                                                                BG_layer)
+                    #         else:
+                    #             success_get_battle_group, balance, battle_group = get_battle_group(faction2, faction1,
+                    #                                                                                BG_layer)
+                    #
+                    #         if success_get_battle_group:
+                    #             sequential_balance_check, temp_balance_stack = balance_check(balance_stack, balance)
+                    #             if sequential_balance_check:
+                    #                 balance_stack = temp_balance_stack
+                    #                 print(f"{candidate.layer_name} {battle_group}")
+                    #                 break
         else:
             continue
-
-
-
-
-
-
-
-    # for layer in layers:
-    #     print(layer.layer_name)
-
-
 
 if __name__ == "__main__":
     main()
