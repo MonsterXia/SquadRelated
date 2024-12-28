@@ -326,20 +326,22 @@ def is_repeat(stack, target):
         return False
 
 def update_stack(stack, stack_capacity, target):
-    stack.append(target)
-    if len(stack)  <= stack_capacity:
-        return stack
+    temp_stack = stack[:]
+    temp_stack.append(target)
+    if len(temp_stack)  <= stack_capacity:
+        return temp_stack
     else:
-        return stack[-stack_capacity:]
+        return temp_stack[-stack_capacity:]
 
 def mode_IID_overflow(stack, stack_capacity, target):
     # Invasion/Insurgency/Destruction
-    stack.append(target)
+    temp_stack = stack[:]
+    temp_stack.append(target)
     count = 0
-    if len(stack) <= stack_capacity:
-        temp = stack
+    if len(temp_stack) <= stack_capacity:
+        temp = temp_stack
     else:
-        temp = stack[-stack_capacity:]
+        temp = temp_stack[-stack_capacity:]
 
     for item in temp:
         if item == "Invasion" or item == "Insurgency" or item == "Destruction":
@@ -351,12 +353,13 @@ def mode_IID_overflow(stack, stack_capacity, target):
         return False
 
 def lighting_not_daytime_overflow(stack, stack_capacity, target):
-    stack.append(target)
+    temp_stack = stack[:]
+    temp_stack.append(target)
     count = 0
-    if len(stack) <= stack_capacity:
-        temp = stack
+    if len(temp_stack) <= stack_capacity:
+        temp = temp_stack
     else:
-        temp = stack[-stack_capacity:]
+        temp = temp_stack[-stack_capacity:]
 
     for item in temp:
         if item != "Daytime":
@@ -368,12 +371,13 @@ def lighting_not_daytime_overflow(stack, stack_capacity, target):
         return False
 
 def layer_size_not_large_overflow(stack, stack_capacity, target):
-    stack.append(target)
+    temp_stack = stack[:]
+    temp_stack.append(target)
     count = 0
-    if len(stack) <= stack_capacity:
-        temp = stack
+    if len(temp_stack) <= stack_capacity:
+        temp = temp_stack
     else:
-        temp = stack[-stack_capacity:]
+        temp = temp_stack[-stack_capacity:]
 
     for item in temp:
         if item != "Large":
@@ -385,25 +389,29 @@ def layer_size_not_large_overflow(stack, stack_capacity, target):
         return False
 
 def candidate_level_check(level_stack, mode_stack, lighting_stack, size_stack, candidate):
-    if is_repeat(level_stack, candidate.level):
+    _level_stack = level_stack
+    _mode_stack = mode_stack
+    _lighting_stack = lighting_stack
+    _size_stack = size_stack
+    if is_repeat(_level_stack, candidate.level):
         return False, None, None, None, None
     else:
-        return_level_stack = update_stack(level_stack, 10, candidate.level)
+        return_level_stack = update_stack(_level_stack, 10, candidate.level)
 
-    if mode_IID_overflow(mode_stack, 5, candidate.level):
+    if mode_IID_overflow(_mode_stack, 5, candidate.game_mode):
         return False, None, None, None, None
     else:
-        return_mode_stack = update_stack(mode_stack, 5, candidate.game_mode)
+        return_mode_stack = update_stack(_mode_stack, 5, candidate.game_mode)
 
-    if lighting_not_daytime_overflow(lighting_stack, 5, candidate.lighting):
+    if lighting_not_daytime_overflow(_lighting_stack, 5, candidate.lighting):
         return False, None, None, None, None
     else:
-        return_lighting_stack = update_stack(lighting_stack, 5, candidate.lighting)
+        return_lighting_stack = update_stack(_lighting_stack, 5, candidate.lighting)
 
-    if layer_size_not_large_overflow(size_stack, 3, candidate.layer_size):
+    if layer_size_not_large_overflow(_size_stack, 3, candidate.layer_size):
         return False, None, None, None, None
     else:
-        return_size_stack = update_stack(size_stack, 3, candidate.layer_size)
+        return_size_stack = update_stack(_size_stack, 3, candidate.layer_size)
 
     return True, return_level_stack, return_mode_stack, return_lighting_stack, return_size_stack
 
@@ -493,12 +501,13 @@ def get_battle_group(faction1, faction2, BG_layer):
             return False, False, None
 
 def battle_group_not_balance_overflow(stack, stack_capacity, target):
-    stack.append(target)
+    temp_stack = stack[:]
+    temp_stack.append(target)
     count = 0
-    if len(stack) <= stack_capacity:
-        temp = stack
+    if len(temp_stack) <= stack_capacity:
+        temp = temp_stack
     else:
-        temp = stack[-stack_capacity:]
+        temp = temp_stack[-stack_capacity:]
 
     for item in temp:
         if item != True:
@@ -541,57 +550,41 @@ def main():
     # for i in range(TOTAL_NUMBER):
         flag, candidate = get_candidate_layers(levels)
         if flag:
-            if len(output_layers) == 0:
-                output_layers.append(candidate)
-                level_stack.append(candidate.level)
-                mode_stack.append(candidate.game_mode)
-                lighting_stack.append(candidate.lighting)
-                size_stack.append(candidate.layer_size)
-            else:
-                check_result, temp_level_stack, temp_mode_stack, temp_lighting_stack, temp_size_stack= candidate_level_check(level_stack, mode_stack, lighting_stack, size_stack, candidate)
-                if check_result:
-                    level_stack = temp_level_stack
-                    mode_stack = temp_mode_stack
-                    lighting_stack = temp_lighting_stack
-                    size_stack = temp_size_stack
-                    output_layers.append(candidate)
-                else:
-                    continue
+            check_result, temp_level_stack, temp_mode_stack, temp_lighting_stack, temp_size_stack= candidate_level_check(level_stack, mode_stack, lighting_stack, size_stack, candidate)
+            if check_result:
+                for BG_layer in BGLayers:
+                    if BG_layer.layer_name == candidate.layer_name:
+                        success_get_faction, faction1, faction2 = get_factions(BG_layer)
 
-            # Battle Group:
-            # BlueForce Independent PAC RedForce
-            # BlueForce:    ADF BAF CAF USA USMC
-            # Independent:  IMF	INS	MEA	TLF	WPMC
-            # PAC:          PLA	PLAAGF	PLANMC
-            # RedForce:     RGF	VDV
+                        if success_get_faction:
+                            random_number_level_faction_side = random.randint(0, 1)
+                            if random_number_level_faction_side == 0:
+                                success_get_battle_group, balance, battle_group = get_battle_group(faction1,
+                                                                                                   faction2,
+                                                                                                   BG_layer)
+                            else:
+                                success_get_battle_group, balance, battle_group = get_battle_group(faction2,
+                                                                                                   faction1,
+                                                                                                   BG_layer)
 
-            for BG_layer in BGLayers:
-                if BG_layer.layer_name == candidate.layer_name:
-                    print(BG_layer.layer_name, len(output_layers))
-                    # # TODO: Insurgency?
-                    # MAX_TRY = 200
-                    # count = 0
-                    # while count < MAX_TRY:
-                    #     count += 1
-                    #     success_get_faction, faction1, faction2 = get_factions(BG_layer)
-                    #
-                    #     if success_get_faction:
-                    #         random_number_level_faction_side = random.randint(0, 1)
-                    #         if random_number_level_faction_side == 0:
-                    #             success_get_battle_group, balance, battle_group = get_battle_group(faction1, faction2,
-                    #                                                                                BG_layer)
-                    #         else:
-                    #             success_get_battle_group, balance, battle_group = get_battle_group(faction2, faction1,
-                    #                                                                                BG_layer)
-                    #
-                    #         if success_get_battle_group:
-                    #             sequential_balance_check, temp_balance_stack = balance_check(balance_stack, balance)
-                    #             if sequential_balance_check:
-                    #                 balance_stack = temp_balance_stack
-                    #                 print(f"{candidate.layer_name} {battle_group}")
-                    #                 break
+                            if success_get_battle_group:
+                                sequential_balance_check, temp_balance_stack = balance_check(balance_stack, balance)
+                                if sequential_balance_check:
+                                    balance_stack = temp_balance_stack
+                                    level_stack = temp_level_stack
+                                    mode_stack = temp_mode_stack
+                                    lighting_stack = temp_lighting_stack
+                                    size_stack = temp_size_stack
+                                    output_str = f"{candidate.layer_name} {battle_group}"
+                                    output_layers.append(output_str)
+                                    break
         else:
             continue
+
+    for str in output_layers:
+        print(str)
+
+
 
 if __name__ == "__main__":
     main()
