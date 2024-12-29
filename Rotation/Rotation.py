@@ -2,6 +2,31 @@ import os
 import random
 import pandas as pd
 
+# Weight for mode
+# [RAAS/AAS, Invasion, Skirmish, TC, Insurgency/Destruction]
+WEIGHT_MODE = [5, 36, 4, 4, 51]
+
+# Weight for alliance
+# B-BlueForce I-Independent P-PAC R-RedForce
+# [B-I, B-P, B-R, I-P, I-R, P-R, I-I]
+WEIGHT_ALLIANCE = [25, 15, 10, 15, 10, 6, 20]
+
+# Weight for daylight(%)
+# [Daytime, not Daytime]
+WEIGHT_LIGHT = [7, 3]
+
+# Weight for large size map
+# [Large, not Large]
+WEIGHT_SIZE = [3,2]
+
+# Weight for equal battle group type
+# [Balance, not Balance]
+WEIGHT_EQUAL = [1,4]
+
+TOTAL_NUMBER = 5000
+
+FILEPATH = "LayerRotation.cfg"
+
 class Layer:
     def __init__(self, level="", ID=0, layer_name="", game_mode="", lighting="", tickets="", commander="", layer_size="", notes="", totals=""):
         self.level = level
@@ -39,7 +64,15 @@ class BGLayer:
         self.red_force = set()
         self.PAC = set()
 
-# returns layers = [Layer, Layer, ...]
+def get_milestone(weights):
+    milestone = []
+    temp = 0
+    for index in range(len(weights)):
+        temp += weights[index]
+        milestone.append(temp)
+
+    return milestone
+
 def read_all_layers():
     # get local director
     current_directory = os.getcwd()
@@ -232,7 +265,7 @@ def update_level(level, layer):
         level.valid_count += 1
     elif mode == "TA":
         level.ta.append(layer)
-    elif mode == "TC":
+    elif mode == "TerritoryControl":
         level.tc.append(layer)
         level.valid_count += 1
     elif mode == "Training":
@@ -271,17 +304,20 @@ def get_candidate_layers(levels):
         return False, None
     else:
         temp_layer_list = []
-        random_number_layer = random.randint(1, 100)
-        if random_number_layer <= 40:
+
+        random_number_layer = random.randint(1, sum(WEIGHT_MODE))
+        milestone = get_milestone(WEIGHT_MODE)
+
+        if random_number_layer <= milestone[0]:
             for layer in levels[random_number_level].r_aas:
                 temp_layer_list.append(layer)
-        elif random_number_layer <= 55:
+        elif random_number_layer <= milestone[1]:
             for layer in levels[random_number_level].invasion:
                 temp_layer_list.append(layer)
-        elif random_number_layer <= 65:
+        elif random_number_layer <= milestone[2]:
             for layer in levels[random_number_level].skirmish:
                 temp_layer_list.append(layer)
-        elif random_number_layer <= 90:
+        elif random_number_layer <= milestone[3]:
             for layer in levels[random_number_level].tc:
                 temp_layer_list.append(layer)
         else:
@@ -298,8 +334,9 @@ def get_candidate_layers(levels):
 
         # check
         # at 70% Daytime
-        random_number_layer_lighting = random.randint(1, 10)
-        if random_number_layer_lighting <= 7:
+        random_number_layer_lighting = random.randint(1, sum(WEIGHT_LIGHT))
+        milestone = get_milestone(WEIGHT_LIGHT)
+        if random_number_layer_lighting <= milestone[0]:
             if candidate.lighting != "Daytime":
                 return False, None
         else :
@@ -307,8 +344,9 @@ def get_candidate_layers(levels):
                 return False, None
 
         # at 60% Large
-        random_number_layer_layer_size = random.randint(1, 10)
-        if random_number_layer_layer_size <= 6:
+        random_number_layer_layer_size = random.randint(1, sum(WEIGHT_SIZE))
+        milestone = get_milestone(WEIGHT_SIZE)
+        if random_number_layer_layer_size <= milestone[0]:
             if candidate.layer_size != "Large":
                 return False, None
         else :
@@ -417,8 +455,9 @@ def candidate_level_check(level_stack, mode_stack, lighting_stack, size_stack, c
 
 def get_factions(BG_layer):
     # B-I B-P B-R I-P I-R P-R I-I
-    random_number_alliance = random.randint(1, 7)
-    if random_number_alliance == 1:
+    random_number_alliance = random.randint(1, sum(WEIGHT_ALLIANCE))
+    milestone = get_milestone(WEIGHT_ALLIANCE)
+    if random_number_alliance <= milestone[0]:
         # B-I blue_force = set()
         #         self.independent = set()
         #         self.red_force = set()
@@ -428,35 +467,35 @@ def get_factions(BG_layer):
             faction2_list = list(BG_layer.independent)
         else:
             return False, None, None
-    elif random_number_alliance == 2:
+    elif random_number_alliance <= milestone[1]:
         # B-P
         if len(BG_layer.blue_force) != 0 and len(BG_layer.PAC) != 0:
             faction1_list = list(BG_layer.blue_force)
             faction2_list = list(BG_layer.PAC)
         else:
             return False, None, None
-    elif random_number_alliance == 3:
+    elif random_number_alliance <= milestone[2]:
         # B-R
         if len(BG_layer.blue_force) != 0 and len(BG_layer.red_force) != 0:
             faction1_list = list(BG_layer.blue_force)
             faction2_list = list(BG_layer.red_force)
         else:
             return False, None, None
-    elif random_number_alliance == 4:
+    elif random_number_alliance <= milestone[3]:
         # I-P
         if len(BG_layer.independent) != 0 and len(BG_layer.PAC) != 0:
             faction1_list = list(BG_layer.independent)
             faction2_list = list(BG_layer.PAC)
         else:
             return False, None, None
-    elif random_number_alliance == 5:
+    elif random_number_alliance <= milestone[4]:
         # I-R
         if len(BG_layer.independent) != 0 and len(BG_layer.red_force) != 0:
             faction1_list = list(BG_layer.independent)
             faction2_list = list(BG_layer.red_force)
         else:
             return False, None, None
-    elif random_number_alliance == 6:
+    elif random_number_alliance <= milestone[5]:
         # P-R
         if len(BG_layer.PAC) != 0 and len(BG_layer.red_force) != 0:
             faction1_list = list(BG_layer.PAC)
@@ -484,8 +523,10 @@ def get_battle_group(faction1, faction2, BG_layer):
         if item.startswith(faction2):
             battle_group_type2.append(item.split("+")[1])
 
-    random_number_level_battle_group_equal = random.randint(1, 5)
-    if random_number_level_battle_group_equal <= 4:
+    random_number_level_battle_group_equal = random.randint(1, sum(WEIGHT_EQUAL))
+    milestone = get_milestone(WEIGHT_EQUAL)
+
+    if random_number_level_battle_group_equal <= milestone[0]:
         intersection = set(battle_group_type1).intersection(set(battle_group_type2))
         if len(intersection) != 0:
             select = random.sample(list(intersection), 1)[0]
@@ -525,10 +566,89 @@ def balance_check(balance_stack, target):
         balance_stack = update_stack(balance_stack, 5, target)
         return True, balance_stack
 
+def map_get_or_default(map, key, default):
+    if key in map:
+        return map[key]
+    else:
+        return default
+
+def get_alliance(str):
+    if str == "ADF" or str == "BAF" or str == "CAF" or str == "USA" or str == "USMC":
+        return "BlueForce"
+    elif str == "IMF" or str == "INS" or str == "MEA" or str == "TLF" or str == "WPMC":
+        return "Independent"
+    elif str == "PLA" or str == "PLAAGF" or str == "PLANMC":
+        return "PAC"
+    else:
+        return "RedForce"
+
+def validating(output_layers):
+    validation_result = []
+    map_level = {}
+    map_mode = {}
+    map_alliance = {}
+    map_faction = {}
+    map_battle_group_type = {}
+    count_balance = 0
+    for str in output_layers:
+        # map_level
+        val_level = str.split(" ")[0].split("_")[0]
+        map_level[val_level] = map_get_or_default(map_level, val_level, 0) + 1
+
+        # map_mode
+        val_mode = str.split(" ")[0].split("_")[1]
+        map_mode[val_mode] = map_get_or_default(map_mode, val_mode, 0) + 1
+
+        # map_faction
+        val_faction1 = str.split(" ")[1].split("+")[0]
+        val_faction2 = str.split(" ")[2].split("+")[0]
+        map_faction[val_faction1] = map_get_or_default(map_faction, val_faction1, 0) + 1
+        map_faction[val_faction2] = map_get_or_default(map_faction, val_faction2, 0) + 1
+        # map_alliance
+        val_alliance1 = get_alliance(val_faction1)
+        val_alliance2 = get_alliance(val_faction2)
+        map_alliance[val_alliance1] = map_get_or_default(map_alliance, val_alliance1, 0) + 1
+        map_alliance[val_alliance2] = map_get_or_default(map_alliance, val_alliance2, 0) + 1
+
+        # map_battle_group_type
+        val_battle_group_type1 = str.split(" ")[1].split("+")[1]
+        val_battle_group_type2 = str.split(" ")[2].split("+")[1]
+        map_battle_group_type[val_battle_group_type1] = map_get_or_default(map_battle_group_type,
+                                                                           val_battle_group_type1, 0) + 1
+        map_battle_group_type[val_battle_group_type2] = map_get_or_default(map_battle_group_type,
+                                                                           val_battle_group_type2, 0) + 1
+
+        # balance count
+        if val_battle_group_type1 == val_battle_group_type2:
+            count_balance += 1
+
+    validation_result.append("// ----------------------------------------------------------------")
+    validation_result.append("// Level rate: ")
+    for key, value in map_level.items():
+        validation_result.append(f"// {key}, {100 * value / len(output_layers)}%")
+    validation_result.append("// --------------------------------")
+    validation_result.append("// Mode rate: ")
+    for key, value in map_mode.items():
+        validation_result.append(f"// {key}, {100 * value / len(output_layers)}%")
+    validation_result.append("// --------------------------------")
+    validation_result.append("// Alliance rate: ")
+    for key, value in map_alliance.items():
+        validation_result.append(f"// {key}, {100 * value / len(output_layers)}%")
+    validation_result.append("// --------------------------------")
+    validation_result.append("// Faction rate: ")
+    for key, value in map_faction.items():
+        validation_result.append(f"// {key}, {100 * value / len(output_layers)}%")
+    validation_result.append("// --------------------------------")
+    validation_result.append("// Battle group type rate: ")
+    for key, value in map_battle_group_type.items():
+        validation_result.append(f"// {key}, {100 * value / len(output_layers)}%")
+    validation_result.append("// --------------------------------")
+    validation_result.append(f"// Balanced rate: {100 * count_balance / len(output_layers)}%")
+    validation_result.append("// ----------------------------------------------------------------")
+
+    return validation_result
 
 def main():
-    TOTAL_NUMBER = 3000
-
     # get layers from Map Layers.csv
     layers = read_all_layers()
     # get factions for layer from BG Layer Availability.
@@ -581,19 +701,15 @@ def main():
         else:
             continue
 
-    for str in output_layers:
-        print(str)
+    validation_result = validating(output_layers)
+    with open(FILEPATH, 'w') as file:
+        for str in validation_result:
+            print(str)
+            file.write(str + '\n')
+        for str in output_layers:
+            file.write(str + '\n')
 
 
 
 if __name__ == "__main__":
     main()
-
-
-
-
-
-
-
-
-
