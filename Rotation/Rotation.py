@@ -625,23 +625,23 @@ def validating(output_layers):
     validation_result.append("// ----------------------------------------------------------------")
     validation_result.append("// Level rate: ")
     for key, value in map_level.items():
-        validation_result.append(f"// {key}, {100 * value / len(output_layers)}%")
+        validation_result.append(f"// {key}: {100 * value / len(output_layers)}%")
     validation_result.append("// --------------------------------")
     validation_result.append("// Mode rate: ")
     for key, value in map_mode.items():
-        validation_result.append(f"// {key}, {100 * value / len(output_layers)}%")
+        validation_result.append(f"// {key}: {100 * value / len(output_layers)}%")
     validation_result.append("// --------------------------------")
     validation_result.append("// Alliance rate: ")
     for key, value in map_alliance.items():
-        validation_result.append(f"// {key}, {100 * value / len(output_layers)}%")
+        validation_result.append(f"// {key}: {100 * value / len(output_layers)}%")
     validation_result.append("// --------------------------------")
     validation_result.append("// Faction rate: ")
     for key, value in map_faction.items():
-        validation_result.append(f"// {key}, {100 * value / len(output_layers)}%")
+        validation_result.append(f"// {key}: {100 * value / len(output_layers)}%")
     validation_result.append("// --------------------------------")
     validation_result.append("// Battle group type rate: ")
     for key, value in map_battle_group_type.items():
-        validation_result.append(f"// {key}, {100 * value / len(output_layers)}%")
+        validation_result.append(f"// {key}: {100 * value / len(output_layers)}%")
     validation_result.append("// --------------------------------")
     validation_result.append(f"// Balanced rate: {100 * count_balance / len(output_layers)}%")
     validation_result.append("// ----------------------------------------------------------------")
