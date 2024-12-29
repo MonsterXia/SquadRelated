@@ -32,7 +32,7 @@ Clone the res, enter the Rotaion folder and run the python file
 
 ```bash
 git clone https://github.com/MonsterXia/SquadRelated.git
-cd Rotation
+cd SquadRelated/Rotation
 python Rotation.py
 ```
 
