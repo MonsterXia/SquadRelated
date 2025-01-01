@@ -2,7 +2,9 @@
 
 Code that is related to Squad Game
 
-## Rotation
+## Tools
+
+### Rotation
 
 Based on latest layer rule for Squad and POST.
 
@@ -32,13 +34,13 @@ Clone the res, enter the Rotaion folder and run the python file
 
 ```bash
 git clone https://github.com/MonsterXia/SquadRelated.git
-cd SquadRelated/Rotation
+cd SquadRelated/Tools/Rotation
 python Rotation.py
 ```
 
 **Result**
 
-Result will be available at ./Rotation/LayerRotation.cfg
+Result will be available at ./Tools/Rotation/LayerRotation.cfg
 
 **Advance Usage**
 
@@ -46,7 +48,7 @@ Adjust the WEIGHT_* in thr front to generate at different weight
 
 Modify the stack_capacity passed in the candidate_level_check() and balance_check() to apply different number for not appear twice for rules, respectively.
 
-## RandomRank[Abandoned]
+### RandomRank[Abandoned]
 
 If you are searching for tools to make layers in rotation randomly, dowanload randomRank and open it in Your IDE.
 
