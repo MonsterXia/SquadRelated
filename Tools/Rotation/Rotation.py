@@ -526,6 +526,7 @@ def get_battle_group(faction1, faction2, BG_layer):
     random_number_level_battle_group_equal = random.randint(1, sum(WEIGHT_EQUAL))
     milestone = get_milestone(WEIGHT_EQUAL)
 
+    # TODO: AI?
     if random_number_level_battle_group_equal <= milestone[0]:
         intersection = set(battle_group_type1).intersection(set(battle_group_type2))
         if len(intersection) != 0:
@@ -537,7 +538,10 @@ def get_battle_group(faction1, faction2, BG_layer):
     else:
         if len(battle_group_type1) > 0 and len(battle_group_type2) > 0:
             battle_group = f"{faction1}+{random.sample(battle_group_type1, 1)[0]} {faction2}+{random.sample(battle_group_type2, 1)[0]}"
-            return True, False, battle_group
+            if faction1 == faction2:
+                return True, False, battle_group
+            else:
+                return True, True, battle_group
         else:
             return False, False, None
 
