@@ -48,6 +48,41 @@ Adjust the WEIGHT_* in thr front to generate at different weight
 
 Modify the stack_capacity passed in the candidate_level_check() and balance_check() to apply different number for not appear twice for rules, respectively.
 
+### POST
+
+#### Assessment toolkit
+
+Designed for Prep/POST assessment.
+
+To get a random grenade/LAT/HAT equipment.
+
+**Update**
+
+Changing the requirement:
+
+Modify grenade_must, LAT_must, HAT_must
+
+Add more equipment:
+
+Modify grenade_random,LAT_random, HAT_random
+
+**Usage**
+
+Download .exe file from ./Tools/POST/'Assessment toolkit'/dist/
+
+**Advance Usage**
+
+Change icon:
+
+Replace the logo.ico and run the get_logo_bitmap.py to update icon's bitmap.
+
+Forming the .exe file:
+
+```bash
+cd ./Tools/POST/'Assessment toolkit'
+pyinstaller --onefile  --noconsole --icon=logo.ico '.\Assessment toolkit.py'
+```
+
 ### RandomRank[Abandoned]
 
 If you are searching for tools to make layers in rotation randomly, dowanload randomRank and open it in Your IDE.
