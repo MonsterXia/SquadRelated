@@ -23,7 +23,7 @@ WEIGHT_SIZE = [3,2]
 # [Balance, not Balance]
 WEIGHT_EQUAL = [1,4]
 
-TOTAL_NUMBER = 5000
+TOTAL_NUMBER = 100
 
 FILEPATH = "LayerRotation.cfg"
 
@@ -537,11 +537,13 @@ def get_battle_group(faction1, faction2, BG_layer):
             return False, False, None
     else:
         if len(battle_group_type1) > 0 and len(battle_group_type2) > 0:
-            battle_group = f"{faction1}+{random.sample(battle_group_type1, 1)[0]} {faction2}+{random.sample(battle_group_type2, 1)[0]}"
-            if faction1 == faction2:
-                return True, False, battle_group
-            else:
+            battle_group_type1_select = random.sample(battle_group_type1, 1)[0]
+            battle_group_type2_select = random.sample(battle_group_type2, 1)[0]
+            battle_group = f"{faction1}+{battle_group_type1_select} {faction2}+{battle_group_type2_select}"
+            if battle_group_type1_select == battle_group_type2_select:
                 return True, True, battle_group
+            else:
+                return True, False, battle_group
         else:
             return False, False, None
 
