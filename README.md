@@ -40,11 +40,11 @@ python Rotation.py
 
 **Result**
 
-Result will be available at ./Tools/Rotation/LayerRotation.cfg
+Result will be available at ./Tools/Rotation/LayerRotation/\*.cfg
 
 **Advance Usage**
 
-Adjust the WEIGHT_* in thr front to generate at different weight
+Adjust the WEIGHT_* in the front to generate at different weight
 
 Modify the stack_capacity passed in the candidate_level_check() and balance_check() to apply different number for not appear twice for rules, respectively.
 
