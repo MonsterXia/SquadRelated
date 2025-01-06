@@ -716,8 +716,8 @@ def main():
         
     file_index = 0
     start = True
+    temp_list = []
     for i in range(len(output_layers)):
-        temp_list = []
         if i % 200 == 0:
             if start:
                 start = False
