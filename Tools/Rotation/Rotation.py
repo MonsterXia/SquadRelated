@@ -21,7 +21,7 @@ WEIGHT_SIZE = [3,2]
 
 # Weight for equal battle group type
 # [Balance, not Balance]
-WEIGHT_EQUAL = [1,4]
+WEIGHT_EQUAL = [1,1]
 
 TOTAL_NUMBER = 5000
 
@@ -726,6 +726,7 @@ def main():
                 with open(layer_rotation_file_name, 'w') as file:
                     for str in temp_list:
                         file.write(str + '\n')
+                temp_list = []
                 file_index += 1
         temp_list.append(output_layers[i])
     layer_rotation_file_name = os.path.join(FILEPATH, f"LayerRotation_{file_index}.cfg")
