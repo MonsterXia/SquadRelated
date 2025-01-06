@@ -1,0 +1,72 @@
+// ----------------------------------------------------------------
+// Level rate: 
+// Yehorivka: 4.8%
+// AlBasrah: 5.24%
+// Manicouagan: 3.6%
+// Kamdesh: 4.84%
+// Harju: 2.74%
+// Narva: 4.1%
+// Lashkar: 5.22%
+// Kohat: 5.44%
+// Mutaha: 5.24%
+// Belaya: 3.28%
+// BlackCoast: 3.74%
+// Anvil: 5.42%
+// Gorodok: 5.24%
+// Logar: 2.1%
+// Skorpo: 2.98%
+// Fallujah: 5.34%
+// Kokan: 3.34%
+// GooseBay: 2.66%
+// PacificProvingGrounds: 3.66%
+// Chora: 3.26%
+// FoolsRoad: 3.7%
+// Tallil: 5.04%
+// Sumari: 3.3%
+// Sanxian: 2.5%
+// Mestia: 3.22%
+// --------------------------------
+// Mode rate: 
+// Invasion: 14.78%
+// TC: 20.58%
+// AAS: 25.7%
+// Destruction: 3.36%
+// Skirmish: 12.34%
+// RAAS: 22.24%
+// Insurgency: 1.0%
+// --------------------------------
+// Alliance rate: 
+// BlueForce: 52.26%
+// Independent: 90.42%
+// PAC: 33.44%
+// RedForce: 23.88%
+// --------------------------------
+// Faction rate: 
+// BAF: 11.22%
+// TLF: 20.18%
+// CAF: 9.78%
+// PLAAGF: 2.98%
+// WPMC: 32.42%
+// USA: 10.74%
+// USMC: 11.34%
+// RGF: 11.42%
+// IMF: 12.98%
+// VDV: 12.46%
+// INS: 12.74%
+// PLA: 27.2%
+// MEA: 12.1%
+// ADF: 9.18%
+// PLANMC: 3.26%
+// --------------------------------
+// Battle group type rate: 
+// CombinedArms: 102.12%
+// AirAssault: 15.98%
+// LightInfantry: 19.06%
+// Support: 17.38%
+// Armored: 18.62%
+// Mechanized: 16.0%
+// Motorized: 10.62%
+// AmphibiousAssault: 0.22%
+// --------------------------------
+// Balanced rate: 83.02%
+// ----------------------------------------------------------------

@@ -23,9 +23,9 @@ WEIGHT_SIZE = [3,2]
 # [Balance, not Balance]
 WEIGHT_EQUAL = [1,4]
 
-TOTAL_NUMBER = 100
+TOTAL_NUMBER = 5000
 
-FILEPATH = "LayerRotation.cfg"
+FILEPATH = "LayerRotation"
 
 class Layer:
     def __init__(self, level="", ID=0, layer_name="", game_mode="", lighting="", tickets="", commander="", layer_size="", notes="", totals=""):
@@ -708,13 +708,30 @@ def main():
             continue
 
     validation_result = validating(output_layers)
-    with open(FILEPATH, 'w') as file:
+    validation_file = os.path.join(FILEPATH, "LayerRotation_validation.txt")
+    with open(validation_file, 'w') as file:
         for str in validation_result:
             print(str)
             file.write(str + '\n')
-        for str in output_layers:
+        
+    file_index = 0
+    start = True
+    for i in range(len(output_layers)):
+        temp_list = []
+        if i % 200 == 0:
+            if start:
+                start = False
+            else:
+                layer_rotation_file_name = os.path.join(FILEPATH, f"LayerRotation_{file_index}.cfg")
+                with open(layer_rotation_file_name, 'w') as file:
+                    for str in temp_list:
+                        file.write(str + '\n')
+                file_index += 1
+        temp_list.append(output_layers[i])
+    layer_rotation_file_name = os.path.join(FILEPATH, f"LayerRotation_{file_index}.cfg")
+    with open(layer_rotation_file_name, 'w') as file:
+        for str in temp_list:
             file.write(str + '\n')
-
 
 
 if __name__ == "__main__":
