@@ -8,21 +8,32 @@ Code that is related to Squad Game
 
 Based on latest layer rule for Squad and POST.
 
-Mainly designed by:
+**Overall Mode Probability**
 
-- | Mode                   | Prob(Approximately) |
-	| ---------------------- | ------------------- |
-	| AAS/RAAS               | 45                  |
-	| Invasion               | 15                  |
-	| Skirmish               | 10                  |
-	| TC                     | 25                  |
-	| Insurgency/Destruction | 5                   |
 
-- Same level won't appear twice in 10.
-- Invasion/Insurgency/Destruction mode won't appear twice in 5.
-- Time for layer is not at daytime won't appear twice in 5.
-- Layer size is not large won't appear twice in 3.
-- Battle group type is not same won't appear twice in 5.
+| Mode                   | Prob(Approximately) |
+| ---------------------- | ------------------- |
+| AAS/RAAS               | 45                  |
+| Invasion               | 15                  |
+| Skirmish               | 10                  |
+| TC                     | 25                  |
+| Insurgency/Destruction | 5                   |
+
+**Mainly pre-defined rules**
+
+- Level
+    - Same level won't appear twice in 10.
+
+- Layer
+    - Invasion/Insurgency/Destruction mode won't appear twice in 6.
+    - Skirmish/TC mode won't appear twice in 5.
+    - If the mode is not AAS/RAAS, won't appear twice in 2, i.e. at least there is a RAAS/AAS layer in 2.
+    - Time for layer is not at daytime won't appear twice in 5.
+    - Layer size is not large won't appear twice in 3.
+
+- Factions
+    - Battle group type is not balance won't appear twice in 5.
+
 
 Requirement:
 

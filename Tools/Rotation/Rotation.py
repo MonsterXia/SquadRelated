@@ -25,7 +25,24 @@ WEIGHT_EQUAL = [1,1]
 
 TOTAL_NUMBER = 5000
 
+# Same level won't appear twice in 10.
+NUMBER_LAYER_WONT_REPEAT = 10
+# Invasion/Insurgency/Destruction mode won't appear twice in 5.
+NUMBER_MODE_IID_WONT_APPEARANCE = 6
+# Skirmish/TC mode won't appear twice in 5.
+NUMBER_MODE_ST_WONT_APPEARANCE = 5
+# If the mode is not AAS/RAAS, won't appear twice in 2, i.e. at least there is a RAAS/AAS layer in 2.
+NUMBER_MODE_NOT_R_AAS_WONT_APPEARANCE = 2
+# Time for layer is not at daytime won't appear twice in 5.
+NUMBER_TIME_NOT_DAYTIME_WONT_APPEARANCE = 5
+# Layer size is not large won't appear twice in 3.
+NUMBER_SIZE_NOT_LARGE_WONT_APPEARANCE = 3
+
+# Battle group type is not balance won't appear twice in 5.
+NUMBER_BATTLE_GROUP_TYPE_NOT_BALANCE_WONT_APPEARANCE = 5
+
 FILEPATH = "LayerRotation"
+
 
 class Layer:
     def __init__(self, level="", ID=0, layer_name="", game_mode="", lighting="", tickets="", commander="", layer_size="", notes="", totals=""):
@@ -39,6 +56,7 @@ class Layer:
         self.layer_size = layer_size
         self.notes = notes
         self.totals = totals
+
 
 class Level:
     def __init__(self, name=""):
@@ -54,6 +72,7 @@ class Level:
         self.training = []
         self.valid_count = 0
 
+
 class BGLayer:
     def __init__(self, layer_name=""):
         self.layer_name = layer_name
@@ -64,6 +83,7 @@ class BGLayer:
         self.red_force = set()
         self.PAC = set()
 
+
 def get_milestone(weights):
     milestone = []
     temp = 0
@@ -72,6 +92,7 @@ def get_milestone(weights):
         milestone.append(temp)
 
     return milestone
+
 
 def read_all_layers():
     # get local director
@@ -156,6 +177,7 @@ def read_all_layers():
                     ))
 
             return layers
+
 
 def read_all_BG_layers(layers):
     # get local director
@@ -244,6 +266,7 @@ def read_all_BG_layers(layers):
                             break
             return BGlayers
 
+
 def update_level(level, layer):
     mode = layer.game_mode
     if mode == "AAS" or mode == "RAAS":
@@ -273,6 +296,7 @@ def update_level(level, layer):
 
     return level
 
+
 def get_level(layers):
     levels = []
     for layer in layers:
@@ -296,6 +320,7 @@ def get_level(layers):
                 levels.append(level)
 
     return levels
+
 
 def get_candidate_layers(levels):
     # get level
@@ -354,6 +379,7 @@ def get_candidate_layers(levels):
                 return False, None
     return True, candidate
 
+
 def is_repeat(stack, target):
     test_set = set(stack)
     length_stake_before = len(test_set)
@@ -363,6 +389,7 @@ def is_repeat(stack, target):
     else:
         return False
 
+
 def update_stack(stack, stack_capacity, target):
     temp_stack = stack[:]
     temp_stack.append(target)
@@ -370,6 +397,7 @@ def update_stack(stack, stack_capacity, target):
         return temp_stack
     else:
         return temp_stack[-stack_capacity:]
+
 
 def mode_IID_overflow(stack, stack_capacity, target):
     # Invasion/Insurgency/Destruction
@@ -390,6 +418,7 @@ def mode_IID_overflow(stack, stack_capacity, target):
     else:
         return False
 
+
 def lighting_not_daytime_overflow(stack, stack_capacity, target):
     temp_stack = stack[:]
     temp_stack.append(target)
@@ -407,6 +436,7 @@ def lighting_not_daytime_overflow(stack, stack_capacity, target):
         return True
     else:
         return False
+
 
 def layer_size_not_large_overflow(stack, stack_capacity, target):
     temp_stack = stack[:]
@@ -426,32 +456,74 @@ def layer_size_not_large_overflow(stack, stack_capacity, target):
     else:
         return False
 
+
+def mode_ST_overflow(stack, stack_capacity, target):
+    # Skirmish/TC
+    temp_stack = stack[:]
+    temp_stack.append(target)
+    count = 0
+    if len(temp_stack) <= stack_capacity:
+        temp = temp_stack
+    else:
+        temp = temp_stack[-stack_capacity:]
+
+    for item in temp:
+        if item == "Skirmish" or item == "TerritoryControl":
+            count += 1
+
+    if count > 1:
+        return True
+    else:
+        return False
+
+
+def mode_not_R_AAS_overflow(stack, stack_capacity, target):
+    # Not AAS/RAAS
+    temp_stack = stack[:]
+    temp_stack.append(target)
+    count = 0
+    if len(temp_stack) <= stack_capacity:
+        temp = temp_stack
+    else:
+        temp = temp_stack[-stack_capacity:]
+
+    for item in temp:
+        if item != "RAAS" and item != "AAS":
+            count += 1
+
+    if count > 1:
+        return True
+    else:
+        return False
+
+
 def candidate_level_check(level_stack, mode_stack, lighting_stack, size_stack, candidate):
-    _level_stack = level_stack
-    _mode_stack = mode_stack
-    _lighting_stack = lighting_stack
-    _size_stack = size_stack
-    if is_repeat(_level_stack, candidate.level):
+    if is_repeat(level_stack, candidate.level):
         return False, None, None, None, None
-    else:
-        return_level_stack = update_stack(_level_stack, 10, candidate.level)
 
-    if mode_IID_overflow(_mode_stack, 5, candidate.game_mode):
+    if mode_IID_overflow(mode_stack, NUMBER_MODE_IID_WONT_APPEARANCE, candidate.game_mode):
         return False, None, None, None, None
-    else:
-        return_mode_stack = update_stack(_mode_stack, 5, candidate.game_mode)
 
-    if lighting_not_daytime_overflow(_lighting_stack, 5, candidate.lighting):
+    if mode_ST_overflow(mode_stack, NUMBER_MODE_ST_WONT_APPEARANCE, candidate.game_mode):
         return False, None, None, None, None
-    else:
-        return_lighting_stack = update_stack(_lighting_stack, 5, candidate.lighting)
 
-    if layer_size_not_large_overflow(_size_stack, 3, candidate.layer_size):
+    if mode_not_R_AAS_overflow(mode_stack, NUMBER_MODE_NOT_R_AAS_WONT_APPEARANCE, candidate.game_mode):
         return False, None, None, None, None
-    else:
-        return_size_stack = update_stack(_size_stack, 3, candidate.layer_size)
+
+
+    if lighting_not_daytime_overflow(lighting_stack, NUMBER_TIME_NOT_DAYTIME_WONT_APPEARANCE, candidate.lighting):
+        return False, None, None, None, None
+
+    if layer_size_not_large_overflow(size_stack, NUMBER_SIZE_NOT_LARGE_WONT_APPEARANCE, candidate.layer_size):
+        return False, None, None, None, None
+
+    return_mode_stack = update_stack(mode_stack, NUMBER_MODE_IID_WONT_APPEARANCE, candidate.game_mode)
+    return_lighting_stack = update_stack(lighting_stack, NUMBER_TIME_NOT_DAYTIME_WONT_APPEARANCE, candidate.lighting)
+    return_level_stack = update_stack(level_stack, NUMBER_LAYER_WONT_REPEAT, candidate.level)
+    return_size_stack = update_stack(size_stack, NUMBER_SIZE_NOT_LARGE_WONT_APPEARANCE, candidate.layer_size)
 
     return True, return_level_stack, return_mode_stack, return_lighting_stack, return_size_stack
+
 
 def get_factions(BG_layer):
     # B-I B-P B-R I-P I-R P-R I-I
@@ -566,10 +638,10 @@ def battle_group_not_balance_overflow(stack, stack_capacity, target):
         return False
 
 def balance_check(balance_stack, target):
-    if battle_group_not_balance_overflow(balance_stack, 5, target):
+    if battle_group_not_balance_overflow(balance_stack, NUMBER_BATTLE_GROUP_TYPE_NOT_BALANCE_WONT_APPEARANCE, target):
         return False, None
     else:
-        balance_stack = update_stack(balance_stack, 5, target)
+        balance_stack = update_stack(balance_stack, NUMBER_BATTLE_GROUP_TYPE_NOT_BALANCE_WONT_APPEARANCE, target)
         return True, balance_stack
 
 def map_get_or_default(map, key, default):
