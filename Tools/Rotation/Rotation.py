@@ -24,6 +24,7 @@ WEIGHT_SIZE = [3,2]
 WEIGHT_EQUAL = [1,1]
 
 TOTAL_NUMBER = 5000
+LAYERS_IN_CHUNKS = 200
 
 # Same level won't appear twice in 10.
 NUMBER_LAYER_WONT_REPEAT = 10
@@ -650,12 +651,12 @@ def map_get_or_default(map, key, default):
     else:
         return default
 
-def get_alliance(str):
-    if str == "ADF" or str == "BAF" or str == "CAF" or str == "USA" or str == "USMC":
+def get_alliance(faction_string):
+    if faction_string == "ADF" or faction_string == "BAF" or faction_string == "CAF" or faction_string == "USA" or faction_string == "USMC":
         return "BlueForce"
-    elif str == "IMF" or str == "INS" or str == "MEA" or str == "TLF" or str == "WPMC":
+    elif faction_string == "IMF" or faction_string == "INS" or faction_string == "MEA" or faction_string == "TLF" or faction_string == "WPMC":
         return "Independent"
-    elif str == "PLA" or str == "PLAAGF" or str == "PLANMC":
+    elif faction_string == "PLA" or faction_string == "PLAAGF" or faction_string == "PLANMC":
         return "PAC"
     else:
         return "RedForce"
@@ -668,18 +669,18 @@ def validating(output_layers):
     map_faction = {}
     map_battle_group_type = {}
     count_balance = 0
-    for str in output_layers:
+    for layer_string in output_layers:
         # map_level
-        val_level = str.split(" ")[0].split("_")[0]
+        val_level = layer_string.split(" ")[0].split("_")[0]
         map_level[val_level] = map_get_or_default(map_level, val_level, 0) + 1
 
         # map_mode
-        val_mode = str.split(" ")[0].split("_")[1]
+        val_mode = layer_string.split(" ")[0].split("_")[1]
         map_mode[val_mode] = map_get_or_default(map_mode, val_mode, 0) + 1
 
         # map_faction
-        val_faction1 = str.split(" ")[1].split("+")[0]
-        val_faction2 = str.split(" ")[2].split("+")[0]
+        val_faction1 = layer_string.split(" ")[1].split("+")[0]
+        val_faction2 = layer_string.split(" ")[2].split("+")[0]
         map_faction[val_faction1] = map_get_or_default(map_faction, val_faction1, 0) + 1
         map_faction[val_faction2] = map_get_or_default(map_faction, val_faction2, 0) + 1
         # map_alliance
@@ -689,8 +690,8 @@ def validating(output_layers):
         map_alliance[val_alliance2] = map_get_or_default(map_alliance, val_alliance2, 0) + 1
 
         # map_battle_group_type
-        val_battle_group_type1 = str.split(" ")[1].split("+")[1]
-        val_battle_group_type2 = str.split(" ")[2].split("+")[1]
+        val_battle_group_type1 = layer_string.split(" ")[1].split("+")[1]
+        val_battle_group_type2 = layer_string.split(" ")[2].split("+")[1]
         map_battle_group_type[val_battle_group_type1] = map_get_or_default(map_battle_group_type,
                                                                            val_battle_group_type1, 0) + 1
         map_battle_group_type[val_battle_group_type2] = map_get_or_default(map_battle_group_type,
@@ -782,29 +783,33 @@ def main():
     validation_result = validating(output_layers)
     validation_file = os.path.join(FILEPATH, "LayerRotation_validation.txt")
     with open(validation_file, 'w') as file:
-        for str in validation_result:
-            print(str)
-            file.write(str + '\n')
+        for validation_info in validation_result:
+            print(validation_info)
+            file.write(validation_info + '\n')
         
     file_index = 0
     start = True
     temp_list = []
+    max_index = int(TOTAL_NUMBER/LAYERS_IN_CHUNKS)
+    num_length = len(str(max_index))
+    
     for i in range(len(output_layers)):
         if i % 200 == 0:
             if start:
                 start = False
             else:
-                layer_rotation_file_name = os.path.join(FILEPATH, f"LayerRotation_{file_index}.cfg")
+                file_index_string = str(file_index).zfill(num_length)
+                layer_rotation_file_name = os.path.join(FILEPATH, f"LayerRotation_{file_index_string}.cfg")
                 with open(layer_rotation_file_name, 'w') as file:
-                    for str in temp_list:
-                        file.write(str + '\n')
+                    for layer_string in temp_list:
+                        file.write(layer_string + '\n')
                 temp_list = []
                 file_index += 1
         temp_list.append(output_layers[i])
     layer_rotation_file_name = os.path.join(FILEPATH, f"LayerRotation_{file_index}.cfg")
     with open(layer_rotation_file_name, 'w') as file:
-        for str in temp_list:
-            file.write(str + '\n')
+        for layer_string in temp_list:
+            file.write(layer_string + '\n')
 
 
 if __name__ == "__main__":

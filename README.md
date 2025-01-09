@@ -13,11 +13,11 @@ Based on latest layer rule for Squad and POST.
 
 | Mode                   | Prob(Approximately) |
 | ---------------------- | ------------------- |
-| AAS/RAAS               | 45                  |
-| Invasion               | 15                  |
-| Skirmish               | 10                  |
-| TC                     | 25                  |
-| Insurgency/Destruction | 5                   |
+| AAS/RAAS               | 69                  |
+| Invasion               | 12                  |
+| Skirmish               | 6                   |
+| TC                     | 9                   |
+| Insurgency/Destruction | 4                   |
 
 **Mainly pre-defined rules**
 
